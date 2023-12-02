@@ -22,6 +22,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine.hpp" />
     <ClInclude Include="Subject.hpp" />
     <ClInclude Include="Wrapper.hpp" />
   </ItemGroup>

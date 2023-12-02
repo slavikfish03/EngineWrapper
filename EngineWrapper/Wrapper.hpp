@@ -16,36 +16,36 @@ using MapArgs = std::map<std::string, T>;
 template <typename T>
 class Wrapper {
 private:
-	std::function<T(const std::vector<T>& args_vec)> function;
+	std::function<T(std::vector<T>& vector_args_for_func)> function;
 	std::vector<std::string> args_names;
 	std::vector<T> args_values;
 
 	template<typename Object, typename Method, size_t... Is>
-	T callFunc(Subject* subject, Method method,
-		const std::vector<int> args, std::index_sequence<Is...>)
+	T callFunc(Object* subject, Method method,
+		 std::vector<T> args, std::index_sequence<Is...>)
 	{
 		return((subject->*method)(args[Is]...));
 	}
 
 public:
 	template <typename Object, typename ...Arguments>
-
-	Wrapper(Object* object, T(Object::* method)(Arguments...), const InputArgs<T> input_args) {
+	Wrapper(Object* object, T(Object::* method)(Arguments...), InputArgs<T> const input_args) {
 		if (input_args.size() != sizeof...(Arguments)) {
-			throw std::exception{ "ERROR: The number of function arguments and input arguments does not match" };
+			std::cout << "ERROR: The number of function arguments and input arguments does not match" << std::endl;
+			throw std::exception{};
 		}
 		for (auto& arg : input_args) {
 			args_names.push_back(arg.first);
 			args_values.push_back(arg.second);
 		}
 
-		function = [this, object, method](const std::vector<T> vector_args) {
-			return(callFunc(object, method, vector_args, std::make_index_sequence<sizeof...(Arguments)>{}));
+		function = [this, object, method] (std::vector<T> vector_args_for_func) {
+			return callFunc(object, method, vector_args_for_func, std::make_index_sequence<sizeof...(Arguments)>{});
 		};
 
 	}
 
-	T execute(const MapArgs map_args) {
+	T execute(const MapArgs<T> map_args) {
 		if (map_args.size() != args_names.size()) {
 			return function(args_values);
 		}
